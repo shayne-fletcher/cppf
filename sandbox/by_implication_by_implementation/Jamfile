@@ -1,0 +1,13 @@
+lib by_implication_by_implementation
+  : by_implication_by_implementation.cpp
+  : <define>WIN32
+    <link>shared
+    <def-file>by_implication_by_implementation.def
+  ;
+
+cppf-install dist
+  : by_implication_by_implementation
+  : <install-dependencies>off
+    $(DIST)
+  ;
+

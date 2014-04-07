@@ -1,0 +1,63 @@
+import os ;
+import project ;
+import targets ;
+import feature ;
+import errors ;
+import "class" : new ;
+
+feature.feature cppf-location : : free path ;
+
+class cppf-install-target-class : install-target-class
+{
+    import os ;
+
+    rule __init__ ( name-and-dir : project : sources * : requirements * : default-build * )
+    {
+        install-target-class.__init__ $(name-and-dir) : $(project) : $(sources) : $(requirements)
+          : $(default-build) ;
+    }
+
+    # If <location> is not set, sets it based on the project data.
+    rule update-location ( property-set )
+    {
+        if ! $(loc)
+        {
+            local cppf-loc = [ $(property-set).get <cppf-location> ] ;
+            local variant = [ $(property-set).get <variant> ] ;
+            local loc = $(cppf-loc)/$(variant) ;
+
+            property-set = [ $(property-set).add-raw $(loc:G=<location>) ] ;
+        }
+
+        return $(property-set) ;
+    }
+}
+
+rule cppf-install ( name : sources * : requirements * : default-build * )
+{
+    local project = [ project.current ] ;
+
+    # Unless the user has explicitly asked us to hardcode dll paths, add
+    # <hardcode-dll-paths>false in requirements, to override default
+    # value.
+    if ! <hardcode-dll-paths>true in $(requirements)
+    {
+        requirements += <hardcode-dll-paths>false ;
+    }
+
+    if <tag> in $(requirements:G)
+    {
+        errors.user-error
+          "The <tag> property is not allowed for the 'install' rule" ;
+    }
+
+    targets.main-target-alternative
+      [ new cppf-install-target-class $(name) : $(project)
+        : [ targets.main-target-sources $(sources) : $(name) ]
+        : [ targets.main-target-requirements $(requirements) : $(project) ]
+        : [ targets.main-target-default-build $(default-build) : $(project) ]
+      ] ;
+}
+
+IMPORT $(__name__) : cppf-install : : cppf-install ;
+
