@@ -1,0 +1,6 @@
+LIBRARY by_implication_by_implementation
+DESCRIPTION 'A C++ dll that can be called from VB'
+
+EXPORTS
+  jaeckel_method
+  normalized_black

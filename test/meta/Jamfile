@@ -1,0 +1,15 @@
+exe cppf_meta_test
+  : [ glob *.cpp ]
+    /site-config//boost_unit_test_framework/<link>shared 
+  : <define>BOOST_TEST_DYN_LINK
+  ;
+
+explicit cppf_meta_test ;
+
+cppf-install dist
+  : cppf_meta_test
+    /site-config//boost_unit_test_framework_shared_lib
+  : $(DIST)
+  ;
+
+explicit dist ;

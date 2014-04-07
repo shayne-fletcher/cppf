@@ -1,0 +1,64 @@
+import os ;
+import xll ;
+import path ;
+import cppf-install ;
+
+constant OS_NAME : [ os.name ] ;
+
+path-constant TOP : . ;
+local BIN = [ os.environ CPPF_BIN ] ;
+if ! $(BIN)
+{
+    BIN = "bin" ;
+}
+if ! [ path.is-rooted [ path.make $(BIN) ] ]
+{
+    BIN = $(TOP)/$(BIN) ;
+}
+path-constant CPPF_ROOT : $(BIN) ;
+path-constant BUILD_ROOT : $(CPPF_ROOT)/build ;
+constant DIST : <cppf-location>$(CPPF_ROOT) ;
+
+project srlib
+  : requirements
+      <define>BOOST_ALL_NO_LIB #disable auto-linking
+      <threading>multi
+      <debug-symbols>on #by default, embed debug symbols in all targets 
+                        #(including release variants)
+
+      <toolset>msvc:<define>NOMINMAX
+      <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS 	
+      <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS 
+
+      #<source>/site-config//boost_patches
+      <source>/site-config//boost_headers
+      <source>/site-config//blitz_headers
+      <source>/site-config//mpi_headers
+      <source>/site-config//ntl_headers
+
+      <include>. #root of ccpf headers
+
+      <define>BOOST_SYSTEM_DYN_LINK
+      <define>BOOST_FILESYSTEM_DYN_LINK
+      <define>BOOST_MPI_DYN_LINK
+      <define>BOOST_PROGRAM_OPTIONS_DYN_LINK
+
+  : build-dir $(BUILD_ROOT)
+  ;
+
+#symbolic identifiers
+
+use-project /cppf/maths : cppf/maths ;
+
+#when bjam is invoked from this directory, build the following projects
+
+build-project ./cppf/maths ;
+
+#invoke 'tests' to build and distribute the unit-tests
+
+alias tests :
+  ./test/maths//dist
+  ./test/meta//dist
+  ;
+
+
