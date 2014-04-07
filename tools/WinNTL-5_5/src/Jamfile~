@@ -1,0 +1,19 @@
+lib libntl 
+  : [ glob *.cpp ] 
+  : <include>../include 
+    <link>static 
+  ;
+
+constant DIST 
+  : <toolset>msvc,<variant>debug:<location>./msvc/debug
+    <toolset>msvc,<variant>release:<location>./msvc/release
+    <toolset>gcc,<variant>debug:<location>./gcc/debug
+    <toolset>gcc,<variant>release:<location>./gcc/release
+  ;
+
+install dist
+  : libntl
+  : <install-dependencies>off
+    $(DIST)
+  ;
+
